@@ -203,8 +203,8 @@
 </div>
 
 <!-- ==================== 买家文案弹窗 ==================== -->
-<div id="copy-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-end sm:items-center justify-center p-0 sm:p-4" onclick="if(event.target===this)hideCopyModal()">
-  <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg shadow-2xl modal-sheet">
+<div id="copy-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto" onclick="if(event.target===this)hideCopyModal()">
+  <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg shadow-2xl modal-sheet mt-auto sm:mt-0 max-h-[85vh] sm:max-h-[90vh] overflow-y-auto">
     <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
       <h3 class="font-bold text-gray-800 text-base">买家文案（点击复制）</h3>
       <button onclick="hideCopyModal()" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-200 active:scale-95 transition text-xl leading-none">&times;</button>
@@ -218,12 +218,7 @@
         </div>
       </div>
     </div>
-    <div class="px-5 pb-6">
-      <button onclick="copyBuyerText()" class="w-full py-3 bg-if-red text-white rounded-xl font-semibold text-sm active:scale-95 transition btn-mobile flex items-center justify-center gap-2">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-        复制文案
-      </button>
-    </div>
+    <div class="px-5 pb-6 pt-0">
   </div>
 </div>
 
@@ -596,9 +591,7 @@ ${code.code}
 • 解锁后 30 天内无需重复输入访问码
 • 有效期至：${expiresText}
 
-祝你备赛顺利，如有任何问题欢迎随时联系！
-
-—— iF Student Award 备赛策略团队`;
+祝你灵感迸发，创意无限，旗开得胜！🎨✨`;
 
   document.getElementById('copy-text-content').textContent = text;
   document.getElementById('copy-modal').classList.remove('hidden');
