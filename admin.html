@@ -496,17 +496,29 @@ function hideRevokeModal() {
   document.getElementById('revoke-modal').classList.remove('flex');
 }
 async function confirmRevoke() {
-  if (!pendingRevokeId) return;
+  if (!pendingRevokeId) {
+    toast('操作异常，请刷新页面后重试', 'error');
+    return;
+  }
+  const codeId = pendingRevokeId;
   hideRevokeModal();
-  const res = await callAdmin({ action: 'revoke_code', code_id: pendingRevokeId });
-  if (res.ok) { toast('已撤销', 'success'); loadDashboard(); }
-  else toast('操作失败', 'error');
+  try {
+    const res = await callAdmin({ action: 'revoke_code', code_id: codeId });
+    if (res.ok) { toast('已撤销', 'success'); loadDashboard(); }
+    else toast('撤销失败: ' + (res.error || '未知错误'), 'error');
+  } catch(e) {
+    toast('网络错误，请检查网络后重试', 'error');
+  }
 }
 
 async function activateCode(id) {
-  const res = await callAdmin({ action: 'activate_code', code_id: id });
-  if (res.ok) { toast('已启用', 'success'); loadDashboard(); }
-  else toast('操作失败', 'error');
+  try {
+    const res = await callAdmin({ action: 'activate_code', code_id: id });
+    if (res.ok) { toast('已启用', 'success'); loadDashboard(); }
+    else toast('启用失败: ' + (res.error || '未知错误'), 'error');
+  } catch(e) {
+    toast('网络错误，请检查网络后重试', 'error');
+  }
 }
 
 // ============ 设备详情 ============
@@ -611,13 +623,18 @@ function fallbackCopy(text) {
 
 // ============ Toast ============
 function toast(msg, type) {
+  // 移除已有的 toast
+  document.querySelectorAll('.toast').forEach(e => e.remove());
   const el = document.createElement('div');
   el.className = 'toast';
   el.style.background = type === 'success' ? '#10b981' : '#ef4444';
+  el.style.whiteSpace = 'normal';
+  el.style.wordBreak = 'break-word';
+  el.style.maxWidth = '90vw';
   el.textContent = msg;
   document.body.appendChild(el);
-  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; }, 2000);
-  setTimeout(() => el.remove(), 2500);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; }, 2500);
+  setTimeout(() => el.remove(), 3000);
 }
 </script>
 </body>
