@@ -349,10 +349,10 @@ function renderCodesDesktop(codes) {
     const status = getCodeStatus(c);
     const expiresText = c.expires_at ? new Date(c.expires_at).toLocaleDateString('zh-CN') : '永不过期';
     return `<tr class="hover:bg-gray-50 transition text-sm">
-      <td class="px-4 py-3 font-mono font-bold text-if-red tracking-widest whitespace-nowrap">${c.code}</td>
+      <td class="px-4 py-3 font-mono font-bold text-if-red tracking-widest whitespace-nowrap">${escapeHtml(c.code)}</td>
       <td class="px-4 py-3 text-gray-600 max-w-[100px] truncate">${c.label ? escapeHtml(c.label) : '<span class="text-gray-300">—</span>'}</td>
       <td class="px-4 py-3 text-center whitespace-nowrap"><span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium badge-${status.class}">${status.text}</span></td>
-      <td class="px-4 py-3 text-center whitespace-nowrap"><button onclick='showDevices(${JSON.stringify(c.devices||[]).replace(/'/g,"\\'")},"${c.code}")' class="text-blue-600 hover:text-blue-800 font-medium">${c.device_count}/${c.max_devices}</button></td>
+      <td class="px-4 py-3 text-center whitespace-nowrap"><button onclick='showDevices(${JSON.stringify(c.devices||[]).replace(/'/g,"\\'")},"${escapeHtml(c.code)}")' class="text-blue-600 hover:text-blue-800 font-medium">${c.device_count}/${c.max_devices}</button></td>
       <td class="px-4 py-3 text-center font-medium whitespace-nowrap">${c.access_count}</td>
       <td class="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">${expiresText}</td>
       <td class="px-4 py-3 text-center whitespace-nowrap">
@@ -381,7 +381,7 @@ function renderCodesMobile(codes) {
     return `<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
       <div class="flex items-start justify-between mb-3">
         <div>
-          <span class="font-mono font-bold text-if-red text-lg tracking-wider">${c.code}</span>
+          <span class="font-mono font-bold text-if-red text-lg tracking-wider">${escapeHtml(c.code)}</span>
           ${c.label ? `<span class="ml-2 text-xs text-gray-400">${escapeHtml(c.label)}</span>` : ''}
         </div>
         <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium badge-${status.class} flex-shrink-0">${status.text}</span>
