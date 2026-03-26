@@ -246,10 +246,21 @@
 <script>
 // ============ Config ============
 const ADMIN_URL = 'https://kghkycnjhivkrjfshfob.supabase.co';
-const REPORT_URL = 'https://linglang-io.github.io/if-student-award-report/';
 let ADMIN_KEY = '';
 let pendingRevokeId = null;
 let lastCreatedCode = null;
+
+// ============ 安全工具 ============
+// HTML 转义，防止 XSS 注入（label/user_agent 等用户数据插入 innerHTML 前必须调用）
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
 
 // ============ Auth ============
 function adminLogin() {
@@ -339,7 +350,7 @@ function renderCodesDesktop(codes) {
     const expiresText = c.expires_at ? new Date(c.expires_at).toLocaleDateString('zh-CN') : '永不过期';
     return `<tr class="hover:bg-gray-50 transition text-sm">
       <td class="px-4 py-3 font-mono font-bold text-if-red tracking-widest whitespace-nowrap">${c.code}</td>
-      <td class="px-4 py-3 text-gray-600 max-w-[100px] truncate">${c.label || '<span class="text-gray-300">—</span>'}</td>
+      <td class="px-4 py-3 text-gray-600 max-w-[100px] truncate">${c.label ? escapeHtml(c.label) : '<span class="text-gray-300">—</span>'}</td>
       <td class="px-4 py-3 text-center whitespace-nowrap"><span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium badge-${status.class}">${status.text}</span></td>
       <td class="px-4 py-3 text-center whitespace-nowrap"><button onclick='showDevices(${JSON.stringify(c.devices||[]).replace(/'/g,"\\'")},"${c.code}")' class="text-blue-600 hover:text-blue-800 font-medium">${c.device_count}/${c.max_devices}</button></td>
       <td class="px-4 py-3 text-center font-medium whitespace-nowrap">${c.access_count}</td>
@@ -371,7 +382,7 @@ function renderCodesMobile(codes) {
       <div class="flex items-start justify-between mb-3">
         <div>
           <span class="font-mono font-bold text-if-red text-lg tracking-wider">${c.code}</span>
-          ${c.label ? `<span class="ml-2 text-xs text-gray-400">${c.label}</span>` : ''}
+          ${c.label ? `<span class="ml-2 text-xs text-gray-400">${escapeHtml(c.label)}</span>` : ''}
         </div>
         <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium badge-${status.class} flex-shrink-0">${status.text}</span>
       </div>
@@ -385,7 +396,7 @@ function renderCodesMobile(codes) {
         <span class="text-xs text-gray-500">${c.device_count}/${c.max_devices}</span>
       </div>
       <div class="flex gap-2">
-        <button onclick='showDevices(${JSON.stringify(c.devices||[]).replace(/'/g,"\\'")},"${c.code}")' class="flex-1 py-2.5 text-xs text-blue-600 bg-blue-50 rounded-xl font-semibold active:scale-95 transition">设备详情</button>
+        <button onclick='showDevices(${JSON.stringify(c.devices||[]).replace(/'/g,"\\'")},"${escapeHtml(c.code)}")' class="flex-1 py-2.5 text-xs text-blue-600 bg-blue-50 rounded-xl font-semibold active:scale-95 transition">设备详情</button>
         ${c.is_active
           ? `<button onclick="showRevokeModal('${c.id}')" class="flex-1 py-2.5 text-xs text-red-600 bg-red-50 rounded-xl font-semibold active:scale-95 transition">撤销访问</button>`
           : `<button onclick="activateCode('${c.id}')" class="flex-1 py-2.5 text-xs text-green-600 bg-green-50 rounded-xl font-semibold active:scale-95 transition">重新启用</button>`
@@ -423,9 +434,9 @@ function renderLogsDesktop(logs) {
       : (l.ip_address || '-');
     return `<tr class="hover:bg-gray-50 transition text-sm">
       <td class="px-4 py-3 text-gray-400 text-xs whitespace-nowrap">${time}</td>
-      <td class="px-4 py-3 whitespace-nowrap"><span class="font-mono text-if-red font-medium">${code}</span>${label ? `<span class="text-gray-400 text-xs ml-1">${label}</span>` : ''}</td>
-      <td class="px-4 py-3 text-center whitespace-nowrap"><span class="px-2 py-0.5 rounded-full text-xs font-medium ${actionClass}">${actionText}</span></td>
-      <td class="px-4 py-3 text-gray-400 text-xs">${meta}</td>
+      <td class="px-4 py-3 whitespace-nowrap"><span class="font-mono text-if-red font-medium">${escapeHtml(code)}</span>${label ? `<span class="text-gray-400 text-xs ml-1">${escapeHtml(label)}</span>` : ''}</td>
+      <td class="px-4 py-3 text-center whitespace-nowrap"><span class="px-2 py-0.5 rounded-full text-xs font-medium ${actionClass}">${escapeHtml(actionText)}</span></td>
+      <td class="px-4 py-3 text-gray-400 text-xs">${escapeHtml(meta)}</td>
     </tr>`;
   }).join('');
 }
@@ -533,14 +544,14 @@ function showDevices(devices, code) {
       return `<div class="border border-gray-100 rounded-xl p-4 mb-3 last:mb-0">
         <div class="flex items-start justify-between mb-2">
           <div class="flex-1 min-w-0">
-            <p class="text-xs text-gray-400 font-mono truncate">${d.fingerprint || '-'}</p>
-            <p class="text-sm text-gray-600 mt-0.5 truncate">${d.user_agent ? d.user_agent.substring(0, 50) : '-'}</p>
+            <p class="text-xs text-gray-400 font-mono truncate">${escapeHtml(d.fingerprint || '-')}</p>
+            <p class="text-sm text-gray-600 mt-0.5 truncate">${escapeHtml(d.user_agent ? d.user_agent.substring(0, 50) : '-')}</p>
           </div>
           <button onclick="deleteDevice('${d.id}')" class="ml-2 text-xs px-2.5 py-1 text-red-500 bg-red-50 rounded-lg hover:bg-red-100 transition flex-shrink-0">解绑</button>
         </div>
         <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-400">
-          <span>最近: ${lastActive}</span>
-          <span>过期: ${expires}</span>
+          <span>最近: ${escapeHtml(lastActive)}</span>
+          <span>过期: ${escapeHtml(expires)}</span>
         </div>
       </div>`;
     }).join('');
